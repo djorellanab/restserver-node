@@ -1,0 +1,50 @@
+const moongose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
+const rolesValidos = require('./enums/E_RolesValidos');
+
+let Schema = moongose.Schema;
+
+let usuarioSchema = new Schema({
+    nombre: {
+        type: String,
+        required: [true, 'El nombre es necesario']
+    },
+    email:{
+        type: String,
+        unique: true,
+        required: [true, 'El correo es necesario']
+    },
+    password:{
+        type: String,
+        required: [true, 'La contrasena es obligatorio']
+    },
+    img: {
+        type: String
+    },
+    role: {
+        type: String,
+        default: 'USER_ROLE',
+        enum: rolesValidos
+    },
+    estado: {
+        type: Boolean,
+        default: true
+    },
+    google: {
+        type: Boolean,
+        default: false
+    }
+});
+
+usuarioSchema.methods.toJSON = function() 
+{
+    let user = this;
+    let userObject = user.toObject();
+    delete userObject.password;
+
+    return userObject;
+};
+
+usuarioSchema.plugin( uniqueValidator, { message:  '{PATH} debe ser unico'} );
+
+module.exports = moongose.model('Usuario', usuarioSchema);
